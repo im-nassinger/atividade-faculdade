@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Contatos</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 30px;
+            background: #f5f5f5;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        table th,
+        table td {
+            padding: 12px 10px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+
+        table th {
+            background: #eaeaea;
+            font-weight: bold;
+        }
+
+        .loading {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Contatos Recebidos</h1>
+    <div class="loading">Carregando...</div>
+
+    <table id="contacts-table" style="display:none;">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Mensagem</th>
+                <th>Data</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        async function loadContacts() {
+            try {
+                const response = await fetch('/plumber-website/backend/contact.php');
+                const data = await response.json();
+
+                const table = document.getElementById('contacts-table');
+                const tbody = table.querySelector('tbody');
+                const loading = document.querySelector('.loading');
+
+                loading.style.display = 'none';
+                table.style.display = 'table';
+
+                if (!Array.isArray(data) || data.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="5">Nenhum registro encontrado.</td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                tbody.innerHTML = data.map(contact => `
+                    <tr>
+                        <td>${contact.id}</td>
+                        <td>${contact.name}</td>
+                        <td>${contact.email}</td>
+                        <td>${contact.message}</td>
+                        <td>${contact.created_at}</td>
+                    </tr>
+                `).join('');
+
+            } catch (error) {
+                document.querySelector('.loading').textContent = 'Erro ao carregar dados.';
+            }
+        }
+
+        loadContacts();
+    </script>
+
+</body>
+
+</html>
